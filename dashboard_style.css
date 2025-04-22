@@ -1,0 +1,231 @@
+/* Dark Mode Toggle */
+.dark-mode {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+/* Body Styling */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #343a40;
+    padding: 15px;
+}
+
+.navbar a {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Dark Mode Button */
+#dark-mode-toggle {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Search Bar */
+.search-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#stock-search {
+    padding: 10px;
+    width: 50%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* RSI Filter Dropdown */
+#rsi-filter {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+/* Stock Card */
+.stock-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stock-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Stock Symbol */
+.stock-symbol {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Stock Data */
+.stock-data {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Signal Colors */
+.signal-buy {
+    color: green;
+}
+
+.signal-sell {
+    color: red;
+}
+
+.signal-hold {
+    color: orange;
+}
+
+/* Signal Icons */
+.signal-buy i, .signal-sell i, .signal-hold i {
+    margin-right: 5px;
+}
+
+/* Chart Styling */
+.chart-container {
+    margin-top: 20px;
+    width: 100%;
+    height: 300px;
+}
+
+/* Responsive Design for Cards */
+@media (max-width: 768px) {
+    .stock-card {
+        margin: 10px;
+    }
+
+    .stock-symbol {
+        font-size: 18px;
+    }
+
+    .stock-data {
+        font-size: 16px;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* Hover effect on table rows */
+table tbody tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #007bff;
+    color: white;
+}
+
+table td {
+    background-color: #f8f9fa;
+}
+
+/* Headings and Text */
+h2 {
+    text-align: center;
+    font-size: 32px;
+    color: #343a40;
+}
+
+p {
+    text-align: center;
+    font-size: 18px;
+    color: #6c757d;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Custom Button Styles */
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Tooltip Style */
+.tooltip-inner {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Refresh Button */
+#refresh-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+}
+
+#refresh-btn:hover {
+    background-color: #218838;
+}
+@media screen and (max-width: 768px) {
+    .stock-card {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .stock-data, .stock-symbol {
+        font-size: 0.85rem;
+    }
+
+    .chart-container {
+        height: 250px !important;
+    }
+
+    .sidebar {
+        display: none; /* Optional: hide sidebar on mobile */
+    }
+}

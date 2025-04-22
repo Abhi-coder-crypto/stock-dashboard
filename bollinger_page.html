@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bollinger Bands Data</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 3rem;
+        }
+        .stock-card {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+        }
+        .stock-card h5 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .stock-data {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        body {
+            background-color: #fafafa;
+            color: black;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        .dark-mode .stock-card {
+            background-color: #333;
+            border-color: #444;
+        }
+        .dark-mode .chart-container canvas {
+            background-color: #222;
+        }
+        .navbar {
+            background-color: #007bff;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .navbar a {
+            color: white !important;
+        }
+        .navbar a:hover {
+            color: #dcdcdc !important;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .highlight {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* ✅ Dark mode fixes */
+        body.dark-mode .stock-card,
+        body.dark-mode .stock-card h5,
+        body.dark-mode .stock-card p,
+        body.dark-mode .stock-card strong,
+        body.dark-mode .stock-card td,
+        body.dark-mode .stock-card th {
+            color: white !important;
+        }
+
+        body.dark-mode .table th {
+            background-color: #444 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .table td {
+            background-color: #222 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header with Dashboard, Logout, and Dark Mode toggle -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Stock Analysis</a>
+            <div class="ml-auto">
+                <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+                <a href="/logout" class="btn btn-danger ml-2">Logout</a>
+                <button class="btn btn-secondary ml-2" onclick="toggleDarkMode()">Dark Mode</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="my-4">Bollinger Bands Data</h1>
+
+        {% if bollinger_data %}
+            <div id="bollingerCharts">
+                {% for symbol, data in bollinger_data.items() %}
+                    <div class="stock-card">
+                        <h5 class="text-center">{{ symbol }}</h5>
+
+                        <!-- Display latest values -->
+                        <div class="stock-data">
+                            <strong class="highlight">Last Upper Band:</strong>
+                            <p>{{ data.upper_band[-1] }}</p>
+                        </div>
+                        <div class="stock-data">
+                            <strong class="highlight">Last Lower Band:</strong>
+                            <p>{{ data.lower_band[-1] }}</p>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Upper Band</th>
+                                        <th>Lower Band</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in range(data.dates|length) %}
+                                        <tr>
+                                            <td>{{ data.dates[i] }}</td>
+                                            <td>{{ data.upper_band[i] }}</td>
+                                            <td>{{ data.lower_band[i] }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="chart-container">
+                            <canvas id="bollingerChart_{{ loop.index }}"></canvas>
+                        </div>
+
+                        <script>
+                            const ctx{{ loop.index }} = document.getElementById("bollingerChart_{{ loop.index }}").getContext('2d');
+                            new Chart(ctx{{ loop.index }}, {
+                                type: 'line',
+                                data: {
+                                    labels: {{ data.dates | tojson }},
+                                    datasets: [
+                                        {
+                                            label: 'Upper Band',
+                                            data: {{ data.upper_band | tojson }},
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.3
+                                        },
+                                        {
+                                            label: 'Lower Band',
+                                            data: {{ data.lower_band | tojson }},
+                                            borderColor: 'rgba(255, 99, 132, 1)',
+                                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.3
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: false
+                                        }
+                                    },
+                                    plugins: {
+                                        title: {
+                                            display: true,
+                                            text: 'Bollinger Bands for {{ symbol }}',
+                                            font: {
+                                                size: 16
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(tooltipItem) {
+                                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No Bollinger Bands data available for the selected stocks.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+/* General Body Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('/static/Pump It Running GIF by mattbag3d.gif') no-repeat center center fixed;
+    background-size: cover;
+    background-position: center;
+    /* Removed animation to stop background movement */
+}
+/* Background Animation */
+
+/* Login Form Container Styling */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    background: rgba(236, 240, 241, 0.9); /* Semi-transparent background */
+    border-radius: 15px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2; /* Ensure it is above other elements */
+    opacity: 1;
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+/* Fade-in effect for the login container */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Header of the Form */
+h1 {
+    text-align: center;
+    color: #2980b9;
+    margin-bottom: 30px;
+    font-size: 36px;
+    letter-spacing: 1.5px;
+    animation: textFadeIn 2s ease-out;
+    z-index: 3; /* Ensure heading is above everything else */
+}
+
+/* Text Fade-in effect */
+@keyframes textFadeIn {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Input Fields Styling */
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 2px solid #bdc3c7;
+    background: #ecf0f1;
+    color: #2c3e50;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    position: relative;  /* Added for z-index management */
+}
+
+/* Input Focus Animation */
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #2980b9;
+    box-shadow: 0 0 8px rgba(41, 128, 185, 0.6);
+    background-color: #fff;
+}
+
+/* Button Styling */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    background: linear-gradient(45deg, #2980b9, #3498db);
+    background-size: 200% 200%;
+    animation: gradientMove 3s ease infinite;
+}
+
+/* Button Hover Effect */
+button:hover {
+    background-color: #3498db;
+    transform: translateY(-4px);
+}
+
+/* Button Press Effect */
+button:active {
+    transform: translateY(2px);
+}
+
+/* Animating the background gradient */
+@keyframes gradientMove {
+    0% { background-position: 0 0; }
+    50% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}
+
+/* Error Message */
+.error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* 3D Hover Effect on Inputs */
+input[type="text"]:hover, input[type="password"]:hover {
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+/* Animated background for inputs */
+input[type="text"]:before, input[type="password"]:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2980b9;
+    opacity: 0.2;
+    z-index: -1;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus:before, input[type="password"]:focus:before {
+    transform: scale(1);
+    opacity: 0.6;
+}
+
+/* Add a subtle glow to the form */
+.login-container {
+    animation: glow 1.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(41, 128, 185, 0.6); }
+    50% { box-shadow: 0 0 15px rgba(41, 128, 185, 1); }
+    100% { box-shadow: 0 0 5px rgba(41, 128, 185, 0.6); }
+}
+
+/* Floating Label Styling */
+label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 15px;
+    color: #bdc3c7;
+    font-size: 16px;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+/* Transforming background color */
+input[type="text"]:focus + label,
+input[type="password"]:focus + label {
+    color: #2980b9;
+    font-size: 12px;
+    transform: translateY(-25px);
+}

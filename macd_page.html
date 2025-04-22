@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACD Data</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 3rem;
+        }
+        .stock-card {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+        }
+        .stock-card h5 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .stock-data {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        body {
+            background-color: #fafafa;
+            color: black;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        .dark-mode .stock-card {
+            background-color: #333;
+            border-color: #444;
+        }
+        .dark-mode .chart-container canvas {
+            background-color: #222;
+        }
+        .navbar {
+            background-color:  #343a40;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: white !important;
+        }
+
+        .navbar a:hover {
+            color: #dcdcdc !important;
+        }
+
+        /* Table Header */
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Table data */
+        .table td {
+            color: black;
+        }
+
+        .highlight {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* ✅ Dark mode fixes */
+        body.dark-mode .stock-card,
+        body.dark-mode .stock-card h5,
+        body.dark-mode .stock-card p,
+        body.dark-mode .stock-card strong,
+        body.dark-mode .stock-card td,
+        body.dark-mode .stock-card th {
+            color: white !important;
+        }
+
+        /* Table background colors for dark mode */
+        body.dark-mode .table th {
+            background-color: #444 !important;
+        }
+
+        body.dark-mode .table td {
+            background-color: #222 !important;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header with Dashboard, Logout, and Dark Mode toggle -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Stock Analysis</a>
+            <div class="ml-auto">
+                <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+                <a href="/logout" class="btn btn-danger ml-2">Logout</a>
+                <button class="btn btn-secondary ml-2" onclick="toggleDarkMode()">Dark Mode</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="my-4">MACD Data</h1>
+
+        {% if macd_data %}
+            <div id="macdCharts">
+                {% for symbol, data in macd_data.items() %}
+                    <div class="stock-card">
+                        <h5 class="text-center">{{ symbol }}</h5>
+
+                        <!-- Display last MACD and Signal Line values -->
+                        <div class="stock-data">
+                            <strong class="highlight">Last MACD Value:</strong>
+                            <p>{{ data.macd[-1] }}</p>
+                        </div>
+                        <div class="stock-data">
+                            <strong class="highlight">Last Signal Line Value:</strong>
+                            <p>{{ data.signal_line[-1] }}</p>
+                        </div>
+
+                        <!-- Display data in table format -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>MACD Value</th>
+                                        <th>Signal Line Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in range(data.dates|length) %}
+                                        <tr>
+                                            <td>{{ data.dates[i] }}</td>
+                                            <td>{{ data.macd[i] }}</td>
+                                            <td>{{ data.signal_line[i] }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Chart Canvas -->
+                        <div class="chart-container">
+                            <canvas id="macdChart_{{ symbol }}"></canvas>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No MACD data available for the selected stocks.</p>
+        {% endif %}
+    </div>
+
+    <!-- JavaScript for all MACD Charts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {% for symbol, data in macd_data.items() %}
+            new Chart(document.getElementById("macdChart_{{ symbol }}").getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: {{ data.dates | tojson }},
+                    datasets: [
+                        {
+                            label: 'MACD',
+                            data: {{ data.macd | tojson }},
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Signal Line',
+                            data: {{ data.signal_line | tojson }},
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'MACD vs Signal Line for {{ symbol }}',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            {% endfor %}
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
