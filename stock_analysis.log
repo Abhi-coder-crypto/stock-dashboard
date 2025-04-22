@@ -1,0 +1,15 @@
+2025-04-12 10:22:38,708 - INFO - ====== WebDriver manager ======
+2025-04-12 10:22:39,820 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-12 10:22:40,015 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-12 10:22:40,122 - INFO - Driver [C:\Users\abhij\.wdm\drivers\chromedriver\win64\135.0.7049.84\chromedriver-win32/chromedriver.exe] found in cache
+2025-04-12 10:22:41,370 - INFO - \u2705 WebDriver initialized successfully.
+2025-04-12 10:22:41,371 - ERROR - \u26a0\ufe0f Error reading top 20 symbols: [Errno 2] No such file or directory: 'C:\\path\\to\\LIVE_PRICE_SYMBOLS.xlsx'
+2025-04-12 10:22:43,540 - INFO - \u2705 Execution completed successfully.
+2025-04-12 10:30:35,501 - INFO - ====== WebDriver manager ======
+2025-04-12 10:30:36,638 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-12 10:30:36,799 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-12 10:30:36,917 - INFO - Driver [C:\Users\abhij\.wdm\drivers\chromedriver\win64\135.0.7049.84\chromedriver-win32/chromedriver.exe] found in cache
+2025-04-12 10:30:38,124 - INFO - \u2705 WebDriver initialized successfully.
+2025-04-12 10:30:38,150 - INFO - \u2705 Fetched top 20 symbols: ['ABB', 'ADANIENSOL', 'ADANIENT', 'ADANIGREEN', 'ADANIPORTS', 'ADANIPOWER', 'ATGL', 'AMBUJACEM', 'APOLLOHOSP', 'ASIANPAINT', 'DMART', 'AXISBANK', 'BAJAJ-AUTO', 'BAJFINANCE', 'BAJAJFINSV', 'BAJAJHLDNG', 'BANKBARODA', 'BEL', 'BHEL', 'BPCL']
+2025-04-12 10:30:38,150 - INFO - \U0001f680 Processing ABB
+2025-04-12 10:30:38,252 - INFO - Calculating indicators for ABB...

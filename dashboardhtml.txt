@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-export@1.1.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_style.css') }}">
+    <style>
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        body.dark-mode .stock-card, body.dark-mode .sidebar {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+        body.dark-mode .navbar {
+            background-color: #000;
+        }
+        body.dark-mode .btn-outline-light {
+            color: #fff;
+            border-color: #fff;
+        }
+        .container-flex {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+        body.dark-mode .sidebar {
+            background-color: #1e1e1e;
+        }
+        body.dark-mode .sidebar a {
+            color: #fff;
+        }
+        body.dark-mode .sidebar a:hover {
+            background-color: #007bff;
+        }
+    </style>
+    <style>
+    ...
+    .chart-container {
+        width: 100%;
+        height: auto;
+    }
+</style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Stock Dashboard</a>
+        <div class="ml-auto d-flex align-items-center">
+            <button id="toggleDarkMode" class="btn btn-outline-light mr-3">🌙 Dark Mode</button>
+            <button id="refreshData" class="btn btn-primary mr-3">🔄 Refresh</button>
+            <select id="rsiFilter" class="form-control w-auto">
+                <option value="all">All</option>
+                <option value="buy">Buy (Oversold)</option>
+                <option value="sell">Sell (Overbought)</option>
+                <option value="hold">Hold</option>
+            </select>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger ml-3">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container-flex">
+        <div class="sidebar">
+            <h5>Stock List</h5>
+            {% for symbol, data in stock_data.items() %}
+                <a href="https://kite.zerodha.com/chart/ext/ciq/NSE/{{ symbol }}/{{ data.instrument_token }}" target="_blank">
+                    {{ symbol }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="container my-4">
+            <h2 class="text-center mb-4">Stock Market Dashboard</h2>
+            <div class="row" id="stockContainer">
+                {% for symbol, data in stock_data.items() %}
+                    <div class="col-sm-12 col-md-6 col-lg-4 mb-4 stock-item" data-signal="{{ data.signal.lower() }}">
+                    <div class="stock-card p-3 border rounded shadow">
+                        <div class="stock-symbol text-center font-weight-bold">{{ symbol }}</div>
+                        <div class="stock-data">Live Price: <strong>₹{{ data.live_price }}</strong></div>
+                        <div class="stock-data">RSI: <strong>{{ data.RSI }}</strong></div>
+                        <div class="stock-data">RSI-MA: <strong>{{ data.RSI_MA }}</strong></div>
+                        <div class="stock-data">
+                            {% set signal_class = 'text-success' if data.signal == 'BUY (Oversold)' else 'text-danger' if data.signal == 'SELL (Overbought)' else 'text-secondary' %}
+                            <strong class="{{ signal_class }}">
+                                <i class="fas {{ 'fa-arrow-up' if data.signal == 'BUY (Oversold)' else 'fa-arrow-down' if data.signal == 'SELL (Overbought)' else 'fa-minus-circle' }}"></i>
+                                {{ data.signal }}
+                            </strong>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart_{{ symbol }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <p>Last updated: {{ last_updated }}</p>
+
+    <!-- Existing Scripts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const darkModeToggle = document.getElementById("toggleDarkMode");
+            const refreshButton = document.getElementById("refreshData");
+            const rsiFilter = document.getElementById("rsiFilter");
+            const stockContainer = document.getElementById("stockContainer");
+
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.body.classList.add("dark-mode");
+                darkModeToggle.textContent = "☀️ Light Mode";
+            }
+
+            darkModeToggle.addEventListener("click", function() {
+                document.body.classList.toggle("dark-mode");
+                if (document.body.classList.contains("dark-mode")) {
+                    localStorage.setItem("darkMode", "enabled");
+                    darkModeToggle.textContent = "☀️ Light Mode";
+                } else {
+                    localStorage.setItem("darkMode", "disabled");
+                    darkModeToggle.textContent = "🌙 Dark Mode";
+                }
+            });
+
+            refreshButton.addEventListener("click", function() {
+                location.reload();
+            });
+
+            rsiFilter.addEventListener("change", function() {
+                const filterValue = rsiFilter.value;
+                document.querySelectorAll(".stock-item").forEach(stock => {
+                    const signal = stock.getAttribute("data-signal");
+                    if (filterValue === "all" || signal.includes(filterValue)) {
+                        stock.style.display = "block";
+                    } else {
+                        stock.style.display = "none";
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+const historicalData = {{ historical_data | tojson }};
+
+Object.entries(historicalData).forEach(([symbol, data]) => {
+    const canvas = document.getElementById(`chart_${symbol}`);
+    if (!canvas) return;
+
+    new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: data.dates,
+            datasets: [
+                {
+                    label: 'Close Price',
+                    data: data.close_prices,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.3
+                },
+                {
+                    label: 'RSI',
+                    data: data.rsi,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: symbol
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    // Export buttons
+    const btns = document.createElement('div');
+    btns.innerHTML = `
+        <button class="btn btn-sm btn-outline-primary mt-2 export-btn" data-type="png" data-symbol="${symbol}">🖼 Export PNG</button>
+        <button class="btn btn-sm btn-outline-danger mt-2 ml-2 export-btn" data-type="pdf" data-symbol="${symbol}">📄 Export PDF</button>
+    `;
+    canvas.parentElement.appendChild(btns);
+});
+
+// Export Logic
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('export-btn')) {
+        const type = e.target.getAttribute('data-type');
+        const symbol = e.target.getAttribute('data-symbol');
+        const canvas = document.getElementById(`chart_${symbol}`);
+        if (type === 'png') {
+            const img = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = img;
+            link.download = `${symbol}_chart.png`;
+            link.click();
+        } else if (type === 'pdf') {
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const pdf = new jspdf.jsPDF();
+            pdf.addImage(imgData, 'JPEG', 15, 15, 180, 100);
+            pdf.save(`${symbol}_chart.pdf`);
+        }
+    }
+});
+</script>
+
+
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
